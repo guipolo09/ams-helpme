@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ams_helpme_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ams
+      POSTGRES_PASSWORD: ams_dev_password
+      POSTGRES_DB: ams_helpme
+    ports:
+      - "5432:5432"
+    volumes:
+      - ams_helpme_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ams -d ams_helpme"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ams_helpme_pgdata:

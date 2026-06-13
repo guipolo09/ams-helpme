@@ -1,0 +1,26 @@
+{
+  "name": "ams-helpme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SaaS de gerenciamento de aplicações por meio de chamados (MVP)",
+  "workspaces": [
+    "database",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "postinstall": "prisma generate --schema=database/prisma/schema.prisma",
+    "db:generate": "npm -w ams-helpme-database run generate",
+    "db:migrate": "npm -w ams-helpme-database run migrate",
+    "db:migrate:deploy": "npm -w ams-helpme-database run migrate:deploy",
+    "db:seed": "npm -w ams-helpme-database run seed",
+    "db:studio": "npm -w ams-helpme-database run studio",
+    "dev:backend": "npm -w ams-helpme-backend run dev",
+    "dev:frontend": "npm -w ams-helpme-frontend run dev",
+    "build:frontend": "npm -w ams-helpme-frontend run build",
+    "typecheck": "npm -w ams-helpme-backend run typecheck && npm -w ams-helpme-frontend run typecheck"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

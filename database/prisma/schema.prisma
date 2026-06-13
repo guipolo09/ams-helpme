@@ -1,0 +1,263 @@
+// AMS HelpMe — modelo de dados (PostgreSQL)
+// Fonte da verdade do banco. O backend consome este mesmo arquivo.
+
+generator client {
+  provider      = "prisma-client-js"
+  // "native" para dev local; "rhel-openssl-3.0.x" para o runtime serverless da Vercel.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== Enums =====
+enum Role {
+  REQUESTER
+  AGENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TicketStatus {
+  ABERTO
+  EM_ATENDIMENTO
+  AGUARDANDO_SOLICITANTE
+  RESOLVIDO
+  ENCERRADO
+  CANCELADO
+  REABERTO
+}
+
+enum TicketPriority {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum Language {
+  EN_US
+  PT_BR
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+// ===== Organização (tenant) =====
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  applications Application[]
+  tickets      Ticket[]
+  categories   Category[]
+
+  @@map("organizations")
+}
+
+// ===== Usuário (solicitante e atendente) =====
+model User {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name         String
+  email        String
+  passwordHash String
+  role         Role   @default(REQUESTER)
+
+  avatarUrl   String?
+  phone       String?
+  department  String?
+  jobTitle    String?
+  specialties String[] @default([])
+  isAvailable Boolean  @default(true)
+
+  language    Language  @default(PT_BR)
+  theme       Theme     @default(SYSTEM)
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  ticketsCreated  Ticket[]              @relation("Requester")
+  ticketsAssigned Ticket[]              @relation("Assignee")
+  comments        TicketComment[]
+  attachments     TicketAttachment[]
+  statusChanges   TicketStatusHistory[]
+  refreshTokens   RefreshToken[]
+  notifications   Notification[]
+
+  @@unique([organizationId, email])
+  @@index([organizationId, role])
+  @@map("users")
+}
+
+// ===== Token de refresh (JWT) =====
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ===== Aplicação gerenciada =====
+model Application {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  ownerName   String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tickets Ticket[]
+
+  @@index([organizationId])
+  @@map("applications")
+}
+
+// ===== Categoria de chamado =====
+model Category {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+
+  tickets Ticket[]
+
+  @@unique([organizationId, name])
+  @@map("categories")
+}
+
+// ===== Chamado =====
+model Ticket {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  number      Int
+  title       String
+  description String
+  status      TicketStatus   @default(ABERTO)
+  priority    TicketPriority @default(MEDIA)
+
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id])
+  categoryId    String?
+  category      Category?    @relation(fields: [categoryId], references: [id])
+
+  requesterId String
+  requester   User    @relation("Requester", fields: [requesterId], references: [id])
+  assigneeId  String?
+  assignee    User?   @relation("Assignee", fields: [assigneeId], references: [id])
+
+  rating        Int?
+  ratingComment String?
+
+  openedAt        DateTime  @default(now())
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  comments      TicketComment[]
+  attachments   TicketAttachment[]
+  statusHistory TicketStatusHistory[]
+
+  @@unique([organizationId, number])
+  @@index([organizationId, status])
+  @@index([assigneeId])
+  @@index([requesterId])
+  @@map("tickets")
+}
+
+// ===== Comentário / mensagem =====
+model TicketComment {
+  id         String   @id @default(uuid())
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  body       String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([ticketId])
+  @@map("ticket_comments")
+}
+
+// ===== Anexo =====
+model TicketAttachment {
+  id           String   @id @default(uuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  fileName     String
+  fileUrl      String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+
+  @@index([ticketId])
+  @@map("ticket_attachments")
+}
+
+// ===== Histórico de status (auditoria) =====
+model TicketStatusHistory {
+  id          String        @id @default(uuid())
+  ticketId    String
+  ticket      Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  changedById String
+  changedBy   User          @relation(fields: [changedById], references: [id])
+  fromStatus  TicketStatus?
+  toStatus    TicketStatus
+  note        String?
+  createdAt   DateTime      @default(now())
+
+  @@index([ticketId])
+  @@map("ticket_status_history")
+}
+
+// ===== Notificação (in-app) =====
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  ticketId  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}

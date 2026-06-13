@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.log
+
+# Artefatos do tsc -b (gerados no build)
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
