@@ -57,13 +57,37 @@ Remove-Item Env:DATABASE_URL
 
 ## Passo 3 — Subir o código para o GitHub
 
+> O repositório git local **já foi inicializado** e o primeiro commit já existe
+> (branch `main`). Você só precisa criar o repositório vazio no GitHub e conectar.
+
+### 3.1 — Criar o repositório no GitHub (pela web)
+
+1. Acesse <https://github.com/new> (logado na sua conta).
+2. **Repository name**: `ams-helpme` (ou outro nome).
+3. **Visibility**: `Private` (recomendado para o MVP) ou `Public`.
+4. **NÃO** marque "Add a README", "Add .gitignore" nem "license" — o repositório
+   precisa ficar **vazio**, senão o push dá conflito.
+5. Clique em **Create repository**.
+6. Na tela seguinte, copie a URL do repositório (ex.:
+   `https://github.com/guilhermemartinspolo/ams-helpme.git`).
+
+### 3.2 — Conectar e enviar (na raiz do projeto)
+
 ```powershell
-git init
-git add .
-git commit -m "MVP AMS HelpMe"
-git branch -M main
-git remote add origin https://github.com/<voce>/ams-helpme.git
+git remote add origin https://github.com/<seu-usuario>/ams-helpme.git
 git push -u origin main
+```
+
+> Na primeira vez, o Git pode pedir login no GitHub — autorize na janela que abrir
+> (ou use um Personal Access Token como senha). Próximos envios são só `git push`.
+
+### Alternativa — via GitHub CLI (`gh`)
+
+Se você tem o [GitHub CLI](https://cli.github.com) instalado e autenticado
+(`gh auth login`), dá para criar e enviar num comando só:
+
+```powershell
+gh repo create ams-helpme --private --source=. --remote=origin --push
 ```
 
 ---
