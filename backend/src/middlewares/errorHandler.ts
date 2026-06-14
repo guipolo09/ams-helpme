@@ -35,10 +35,7 @@ export function errorHandler(
   }
 
   console.error(err);
-  // TEMPORÁRIO: expõe o detalhe do erro para diagnóstico do deploy. Remover depois.
-  const detail =
-    err instanceof Error ? { name: err.name, message: err.message } : undefined;
   return res
     .status(500)
-    .json({ code: "INTERNAL_ERROR", message: "Erro interno do servidor", detail });
+    .json({ code: "INTERNAL_ERROR", message: "Erro interno do servidor" });
 }
