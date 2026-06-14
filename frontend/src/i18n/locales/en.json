@@ -40,7 +40,11 @@
   "nav": {
     "dashboard": "Dashboard",
     "tickets": "Tickets",
+    "myTickets": "My tickets",
+    "queue": "Ticket queue",
     "applications": "Applications",
+    "users": "Users",
+    "categories": "Categories",
     "newTicket": "New ticket"
   },
   "dashboard": {
@@ -91,6 +95,25 @@
     "description": "Description",
     "owner": "Owner",
     "new": "New application"
+  },
+  "users": {
+    "title": "Users",
+    "new": "New user",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "department": "Department",
+    "empty": "No users",
+    "emailInUse": "This email is already in use"
+  },
+  "categories": {
+    "title": "Categories",
+    "new": "New category",
+    "name": "Name",
+    "color": "Color",
+    "empty": "No categories",
+    "delete": "Delete"
   },
   "status": {
     "ABERTO": "Open",

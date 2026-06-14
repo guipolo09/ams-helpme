@@ -40,7 +40,11 @@
   "nav": {
     "dashboard": "Painel",
     "tickets": "Chamados",
+    "myTickets": "Meus chamados",
+    "queue": "Fila de chamados",
     "applications": "Aplicações",
+    "users": "Usuários",
+    "categories": "Categorias",
     "newTicket": "Novo chamado"
   },
   "dashboard": {
@@ -91,6 +95,25 @@
     "description": "Descrição",
     "owner": "Responsável",
     "new": "Nova aplicação"
+  },
+  "users": {
+    "title": "Usuários",
+    "new": "Novo usuário",
+    "name": "Nome",
+    "email": "E-mail",
+    "password": "Senha",
+    "role": "Papel",
+    "department": "Departamento",
+    "empty": "Nenhum usuário",
+    "emailInUse": "Este e-mail já está em uso"
+  },
+  "categories": {
+    "title": "Categorias",
+    "new": "Nova categoria",
+    "name": "Nome",
+    "color": "Cor",
+    "empty": "Nenhuma categoria",
+    "delete": "Excluir"
   },
   "status": {
     "ABERTO": "Aberto",

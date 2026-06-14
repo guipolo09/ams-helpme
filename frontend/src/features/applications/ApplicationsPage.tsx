@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { Button, Card, Input, Label, Spinner } from "../../components/ui";
-import { isStaff, useAuthStore } from "../../store/auth";
+import { useAuthStore } from "../../store/auth";
 import { useApplications } from "../tickets/api";
 
 export function ApplicationsPage() {

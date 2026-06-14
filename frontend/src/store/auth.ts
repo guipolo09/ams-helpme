@@ -33,3 +33,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 export const isStaff = (role?: string) =>
   role === "AGENT" || role === "ADMIN" || role === "SUPER_ADMIN";
+
+export const isAdmin = (role?: string) =>
+  role === "ADMIN" || role === "SUPER_ADMIN";

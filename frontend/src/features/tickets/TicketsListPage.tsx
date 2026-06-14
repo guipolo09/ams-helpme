@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Badge, Card, Input, Select, Spinner } from "../../components/ui";
+import { isStaff, useAuthStore } from "../../store/auth";
 import { useTickets } from "./api";
 import { ALL_PRIORITIES, ALL_STATUSES, PRIORITY_COLORS, STATUS_COLORS } from "./constants";
 
 export function TicketsListPage() {
   const { t } = useTranslation();
+  const staff = isStaff(useAuthStore((s) => s.user?.role));
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [search, setSearch] = useState("");
@@ -65,6 +67,7 @@ export function TicketsListPage() {
               <tr className="border-b border-slate-200 text-left text-slate-500 dark:border-slate-800 dark:text-slate-400">
                 <th className="px-4 py-3">{t("tickets.number")}</th>
                 <th className="px-4 py-3">{t("tickets.subject")}</th>
+                {staff && <th className="px-4 py-3">{t("tickets.requester")}</th>}
                 <th className="px-4 py-3">{t("tickets.status")}</th>
                 <th className="px-4 py-3">{t("tickets.priority")}</th>
                 <th className="px-4 py-3">{t("tickets.assignee")}</th>
@@ -90,6 +93,11 @@ export function TicketsListPage() {
                       </span>
                     )}
                   </td>
+                  {staff && (
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                      {ticket.requester.name}
+                    </td>
+                  )}
                   <td className="px-4 py-3">
                     <Badge color={STATUS_COLORS[ticket.status]}>
                       {t(`status.${ticket.status}`)}

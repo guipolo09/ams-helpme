@@ -1,22 +1,46 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { api } from "../../lib/api";
-import { useAuthStore } from "../../store/auth";
+import { isStaff, useAuthStore } from "../../store/auth";
 import { Button } from "../ui";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const navItems = [
-  { to: "/", key: "nav.dashboard", end: true },
-  { to: "/tickets", key: "nav.tickets", end: false },
-  { to: "/applications", key: "nav.applications", end: false },
-];
+const STAFF = ["AGENT", "ADMIN", "SUPER_ADMIN"];
+const ADMIN = ["ADMIN", "SUPER_ADMIN"];
+const ALL = ["REQUESTER", ...STAFF];
+
+interface NavItem {
+  to: string;
+  key: string;
+  end: boolean;
+  roles: string[];
+}
 
 export function AppLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clear = useAuthStore((s) => s.clear);
+  const staff = isStaff(user?.role);
+
+  const navItems: NavItem[] = [
+    { to: "/", key: "nav.dashboard", end: true, roles: ALL },
+    {
+      to: "/tickets",
+      key: staff ? "nav.queue" : "nav.myTickets",
+      end: false,
+      roles: ALL,
+    },
+    { to: "/tickets/new", key: "nav.newTicket", end: false, roles: ALL },
+    { to: "/applications", key: "nav.applications", end: false, roles: STAFF },
+    { to: "/users", key: "nav.users", end: false, roles: ADMIN },
+    { to: "/categories", key: "nav.categories", end: false, roles: ADMIN },
+  ];
+
+  const visibleItems = navItems.filter(
+    (item) => user && item.roles.includes(user.role)
+  );
 
   async function handleLogout() {
     await api.post("/auth/logout").catch(() => undefined);
@@ -31,7 +55,7 @@ export function AppLayout() {
           {t("common.appName")}
         </div>
         <nav className="flex flex-col gap-1">
-          {navItems.map((item) => (
+          {visibleItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
