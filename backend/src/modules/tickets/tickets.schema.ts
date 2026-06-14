@@ -16,8 +16,9 @@ export const createTicketSchema = z.object({
   title: z.string().min(3, "Título muito curto"),
   description: z.string().min(5, "Descrição muito curta"),
   priority: priorityEnum.default("MEDIA"),
-  applicationId: z.string().uuid().optional().nullable(),
-  categoryId: z.string().uuid().optional().nullable(),
+  // Sem .uuid(): a existência é garantida pela FK; ids do seed não são UUID.
+  applicationId: z.string().optional().nullable(),
+  categoryId: z.string().optional().nullable(),
 });
 
 export const listTicketsSchema = z.object({
