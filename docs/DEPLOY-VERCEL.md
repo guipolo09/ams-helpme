@@ -97,6 +97,10 @@ gh repo create ams-helpme --private --source=. --remote=origin --push
 1. Em **Add New → Project**, importe o repositório.
 2. **Root Directory**: deixe a **raiz** do repositório (não escolha `frontend`).
    O [`vercel.json`](../vercel.json) já define build, output e as rotas.
+   > ⚠️ Isto é crítico. Se o Root Directory apontar para uma subpasta, a Vercel
+   > ignora o `vercel.json` da raiz e tenta `npm install --prefix=..`, que falha.
+   > Confira em **Settings → Build and Deployment → Root Directory** (deve estar
+   > vazio / `./`).
 3. **Framework Preset**: `Other` (o `vercel.json` cuida do resto).
 4. Antes de clicar em **Deploy**, configure as variáveis de ambiente (próximo passo).
 
@@ -149,6 +153,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 | Login funciona mas "cai" ao recarregar | `COOKIE_SECURE` deve ser `true` em produção (HTTPS). |
 | Erro de engine do Prisma na função | O `binaryTargets` já inclui `rhel-openssl-3.0.x`; garanta que o build rodou o `postinstall` (gera o client). Refaça o deploy. |
 | Página em branco em rotas internas | O `vercel.json` já faz o fallback de SPA para `index.html`; confirme que o deploy usou o `vercel.json` da raiz. |
+| `npm install --prefix=..` falhando com `ENOENT /vercel/package.json` | O **Root Directory** está numa subpasta. Ajuste para a raiz (`./`) em Settings → Build and Deployment e refaça o deploy. |
 
 ---
 

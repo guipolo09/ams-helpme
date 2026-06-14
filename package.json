@@ -21,6 +21,6 @@
     "typecheck": "npm -w ams-helpme-backend run typecheck && npm -w ams-helpme-frontend run typecheck"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   }
 }
